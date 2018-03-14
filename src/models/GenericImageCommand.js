@@ -7,7 +7,7 @@ class GenericImageCommand {
     this.URLParseFN = URLParseFN || this.defaultURLParseFN
   }
 
-  async run ({ Memer, msg, args, addCD }) {
+  async run ({ Memer, msg, cleanArgs: args, addCD }) {
     const datasrc = this.URLParseFN(msg, args)
     if (!datasrc) {
       return
@@ -31,9 +31,25 @@ class GenericImageCommand {
   }
 
   defaultURLParseFN (msg, args) {
+    if (this.cmdProps.textOnly) {
+      if (this.cmdProps.requiredArgs) {
+        if (!args[0]) {
+          msg.channel.createMessage(this.cmdProps.requiredArgs)
+          return false
+        }
+
+        if (args.join(' ').length > this.cmdProps.textLimit) {
+          msg.channel.createMessage(`Too long. You're ${args.join(' ').length - this.cmdProps.textLimit} characters over the limit!`)
+          return false
+        }
+      }
+
+      return args.join(' ')
+    }
+
     let avatarurl = (msg.mentions[0] || msg.author).dynamicAvatarURL('png', 1024)
     if (['jpg', 'jpeg', 'gif', 'png', 'webp'].some(ext => args.join(' ').includes(ext))) {
-      avatarurl = args.join(' ').replace(/gif|webp/g, 'png')
+      avatarurl = args.join(' ').replace(/gif|webp/g, 'png').replace(/<|>/g, '')
     }
 
     if (this.cmdProps.requiredArgs) {
@@ -52,8 +68,8 @@ class GenericImageCommand {
         return false
       }
 
-      return JSON.stringify([`${avatarurl}`, `${args.join(' ')}`])
-    } else if (this.props.doubleAvatar) {
+      return JSON.stringify([`${avatarurl}`, args.join(' ')])
+    } else if (this.cmdProps.doubleAvatar) {
       const authorurl = (msg.mentions[0]
         ? msg.author
         : msg.channel.guild.shard.client.user)
