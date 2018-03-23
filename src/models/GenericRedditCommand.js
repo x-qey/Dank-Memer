@@ -25,20 +25,12 @@ module.exports = class GenericRedditCommand {
     indexes[msg.channel.guild.id]++
 
     await addCD()
-    if (this.cmdProps.type === 'text') {
-      return {
-        title: post.data.title,
-        url: `https://www.reddit.com${post.data.permalink}`,
-        description: post.data.selftext,
-        image: { url: this.cmdProps.type === 'image' ? post.data.url : '' },
-        footer: { text: `👍 ${post.data.ups} | 💬 ${post.data.num_comments}` }
-      }
-    }
     return {
       title: post.data.title,
       url: `https://www.reddit.com${post.data.permalink}`,
       image: { url: this.cmdProps.type === 'image' ? post.data.url : '' },
-      footer: { text: `👍 ${post.data.ups} | 💬 ${post.data.num_comments}` }
+      description: post.data[this.cmdProps.type === 'image' ? 'url' : 'selftext'],
+      footer: { text: `posted by ${post.data.author}` }
     }
   }
 
@@ -46,7 +38,7 @@ module.exports = class GenericRedditCommand {
     return new GenericCommand(
       null,
       Object.assign({
-        cooldown: 3000,
+        cooldown: 500,
         perms: ['embedLinks']
       }, this.cmdProps)
     ).props

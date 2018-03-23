@@ -4,8 +4,8 @@ module.exports = new GenericCommand(
   async ({Memer, msg, addCD}) => {
     await addCD()
     let pls = await Memer.db.topCoins()
-    let [a, b, c, d, e, f, g, h, i, j] = pls
 
+    let [a, b, c, d, e, f, g, h, i, j] = pls
     let numOne = await Memer.bot.users.get(a.id)
     let numTwo = await Memer.bot.users.get(b.id)
     let numThree = await Memer.bot.users.get(c.id)
